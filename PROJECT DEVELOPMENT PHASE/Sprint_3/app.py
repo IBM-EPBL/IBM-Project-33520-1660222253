@@ -53,10 +53,10 @@ def login():
     msg =""
     
     if request.method == "POST":
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
         
-        sql = "SELECT * FROM users WHERE username =? AND password =?"
+        sql = "SELECT * FROM users WHERE email =? AND password =?"
         stmt = ibm_db.prepare(conn,sql)
         ibm_db.bind_param(stmt, 1, email)
         ibm_db.bind_param(stmt, 2, password)
@@ -81,16 +81,14 @@ def login():
 def register():
     if request.method == "POST":
         global message
+        
+        username = request.form["username"]
+        email = request.form["email"]
+        password = request.form["password"]
 
-        users = request.form
-        print(users)
-        name = users["name"]
-        email = users["email"]
-        password = users["password"]
-
-        sql = "SELECT * FROM users WHERE email = ?"
+        sql = "SELECT * FROM users WHERE username = ?"
         stmt = ibm_db.prepare(conn, sql)
-        ibm_db.bind_param(stmt, 1, email)
+        ibm_db.bind_param(stmt, 1, username)
         ibm_db.execute(stmt)
 
         account = ibm_db.fetch_assoc(stmt)
@@ -113,16 +111,11 @@ def register():
             ibm_db.bind_param(prep_stmt, 2, email)
             ibm_db.bind_param(prep_stmt, 3, password)
             ibm_db.execute(prep_stmt)
+            msg = 'you have successfully registered!'
 
-            session['loggedin'] = True
-            session['id'] = email
-            user_email = email
-            session['email'] = email
-            session['name'] = name
-
-            message = ""
-
-            return redirect(url_for('add'))
+    elif request.method == 'POST':
+            msg = 'Please fill out the form !'
+    return render_template('register.html', msg = msg)
 
 @app.route("/add")
 def adding():
